@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Proksima Credit Risk & Expected Credit Loss Dashboard" />
+  <title>Proksima Credit Risk Dashboard</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #ffffff;
+      --surface-2: #eef4ff;
+      --text: #182230;
+      --muted: #667085;
+      --border: #e4e7ec;
+      --primary: #2357d8;
+      --primary-2: #1744b3;
+      --success: #0d8a5f;
+      --warning: #c97912;
+      --danger: #c23b47;
+      --shadow: 0 14px 40px rgba(16, 24, 40, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.6;
+    }
+    a { color: inherit; }
+    button, input, select { font: inherit; }
+
+    .wrap { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(246, 248, 251, 0.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(228, 231, 236, 0.9);
+    }
+    .nav {
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), #6f8cff);
+      box-shadow: 0 8px 22px rgba(35, 87, 216, 0.28);
+    }
+    .nav-links { display: flex; align-items: center; gap: 18px; color: var(--muted); font-size: 14px; }
+    .nav-links a { text-decoration: none; }
+    .nav-links a:hover { color: var(--primary); }
+
+    .hero {
+      padding: 74px 0 42px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: center;
+      gap: 46px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border: 1px solid #cbd8ff;
+      background: #edf2ff;
+      color: #294fbd;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    h1 {
+      margin: 18px 0 16px;
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 1.02;
+      letter-spacing: -0.045em;
+    }
+    .hero p { margin: 0; color: var(--muted); font-size: 18px; max-width: 720px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .btn {
+      min-height: 46px;
+      padding: 0 18px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--primary); color: white; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-2); }
+    .btn-secondary:hover { border-color: #cbd3df; background: #fafbfc; }
+
+    .hero-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+    .window-bar { display: flex; gap: 7px; margin-bottom: 18px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: #d0d5dd; }
+    .mini-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .mini-card { border: 1px solid var(--border); border-radius: 14px; padding: 14px; }
+    .mini-card span { display: block; color: var(--muted); font-size: 12px; }
+    .mini-card strong { display: block; margin-top: 4px; font-size: 20px; }
+    .chart {
+      margin-top: 12px;
+      height: 220px;
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(180deg, #fff, #f8faff);
+    }
+    .bars { height: 155px; display: flex; align-items: end; gap: 11px; }
+    .bar {
+      flex: 1;
+      min-width: 10px;
+      border-radius: 8px 8px 3px 3px;
+      background: linear-gradient(180deg, #6f8cff, var(--primary));
+      opacity: 0.92;
+    }
+    .chart-labels { display: flex; justify-content: space-between; margin-top: 9px; color: var(--muted); font-size: 11px; }
+
+    section { padding: 42px 0; }
+    .section-head { max-width: 760px; margin-bottom: 24px; }
+    .section-head h2 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.03em; }
+    .section-head p { margin: 0; color: var(--muted); }
+
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px;
+    }
+    .icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--surface-2);
+      color: var(--primary);
+      font-weight: 900;
+      margin-bottom: 16px;
+    }
+    .feature h3 { margin: 0 0 8px; font-size: 18px; }
+    .feature p { margin: 0; color: var(--muted); font-size: 14px; }
+
+    .formula-grid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 18px; align-items: stretch; }
+    .formula-card, .calculator {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+    }
+    .formula {
+      margin: 18px 0;
+      border-radius: 16px;
+      padding: 24px 18px;
+      background: #101828;
+      color: white;
+      text-align: center;
+      font-size: clamp(23px, 3vw, 34px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .legend { display: grid; gap: 10px; color: var(--muted); font-size: 14px; }
+    .legend b { color: var(--text); }
+
+    .calculator h3 { margin-top: 0; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    label { display: grid; gap: 6px; color: var(--muted); font-size: 13px; font-weight: 650; }
+    input, select {
+      width: 100%;
+      min-height: 44px;
+      border: 1px solid #d0d5dd;
+      border-radius: 11px;
+      padding: 9px 11px;
+      background: white;
+      color: var(--text);
+      outline: none;
+    }
+    input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(35, 87, 216, 0.1); }
+    .calc-result {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .result-item span { display: block; color: var(--muted); font-size: 12px; }
+    .result-item strong { display: block; margin-top: 3px; font-size: 19px; }
+    .notice { margin-top: 12px; color: var(--muted); font-size: 12px; }
+
+    .deploy {
+      background: #101828;
+      color: white;
+      border-radius: 24px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 24px;
+    }
+    .deploy h2 { margin: 0 0 8px; }
+    .deploy p { margin: 0; color: #cbd5e1; }
+    code { background: #eef2f6; color: #344054; padding: 2px 6px; border-radius: 6px; }
+    .deploy code { background: #1d2939; color: #e2e8f0; }
+
+    footer { padding: 28px 0 44px; color: var(--muted); font-size: 13px; }
+
+    @media (max-width: 900px) {
+      .hero, .formula-grid { grid-template-columns: 1fr; }
+      .features { grid-template-columns: 1fr 1fr; }
+      .hero { padding-top: 54px; }
+      .deploy { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .wrap { width: min(100% - 22px, 1180px); }
+      .nav-links { display: none; }
+      .features, .form-grid, .calc-result, .mini-kpis { grid-template-columns: 1fr; }
+      h1 { font-size: 44px; }
+      .hero-panel { padding: 16px; }
+      .bars { gap: 7px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <div class="brand"><div class="brand-mark">P</div><span>Proksima Risk Analytics</span></div>
+      <nav class="nav-links" aria-label="Navigasi utama">
+        <a href="#features">Fitur</a>
+        <a href="#ecl">ECL</a>
+        <a href="#deploy">Deploy</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap hero">
+      <div>
+        <span class="eyebrow">Credit Risk · PD · LGD · EAD · ECL</span>
+        <h1>Credit risk dashboard yang auditable dan siap GitHub.</h1>
+        <p>
+          Visualisasi portofolio kredit UMKM berbasis model Logistic Regression dari notebook Final Project Proksima,
+          dilengkapi pencarian nasabah, Probability of Default, dan estimasi Expected Credit Loss.
+        </p>
+        <div class="actions">
+          <a class="btn btn-primary" id="streamlitButton" href="#deploy">Buka Dashboard Streamlit</a>
+          <a class="btn btn-secondary" href="app.py">Lihat app.py</a>
+        </div>
+      </div>
+
+      <div class="hero-panel" aria-label="Preview dashboard">
+        <div class="window-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+        <div class="mini-kpis">
+          <div class="mini-card"><span>Model</span><strong>Logistic</strong></div>
+          <div class="mini-card"><span>Threshold</span><strong>0.415</strong></div>
+          <div class="mini-card"><span>ECL</span><strong>PD × LGD × EAD</strong></div>
+        </div>
+        <div class="chart" aria-label="Ilustrasi distribusi probability of default">
+          <div class="bars">
+            <div class="bar" style="height:28%"></div><div class="bar" style="height:43%"></div>
+            <div class="bar" style="height:67%"></div><div class="bar" style="height:84%"></div>
+            <div class="bar" style="height:72%"></div><div class="bar" style="height:58%"></div>
+            <div class="bar" style="height:44%"></div><div class="bar" style="height:31%"></div>
+            <div class="bar" style="height:20%"></div><div class="bar" style="height:12%"></div>
+          </div>
+          <div class="chart-labels"><span>PD rendah</span><span>Probability of Default</span><span>PD tinggi</span></div>
+        </div>
+      </div>
+    </div>
+
+    <section id="features">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Satu dashboard untuk melihat risiko dari portofolio sampai nasabah.</h2>
+          <p>Landing page ini statis untuk GitHub Pages. Perhitungan model penuh tetap dijalankan oleh <code>app.py</code> melalui Streamlit.</p>
+        </div>
+        <div class="features">
+          <article class="feature">
+            <div class="icon">01</div>
+            <h3>Visualisasi interaktif</h3>
+            <p>Distribusi PD, ECL per sektor, default aktual vs PD, serta hubungan PD, EAD, dan ECL dengan Plotly.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">02</div>
+            <h3>Analisis finansial</h3>
+            <p>Masukkan data finansial nasabah baru untuk menghasilkan estimasi PD dan meneruskannya ke perhitungan ECL.</p>
+          </article>
+          <article class="feature">
+            <div class="icon">03</div>
+            <h3>Pencarian nasabah</h3>
+            <p>Search menggunakan nama nasabah ketika kolom tersedia, atau menggunakan ID debitur pada dataset notebook.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="ecl">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Expected Credit Loss</h2>
+          <p>Implementasi dashboard mempertahankan definisi yang digunakan pada notebook: EAD diproksikan dengan plafon kredit dan LGD ditentukan berdasarkan kepemilikan agunan.</p>
+        </div>
+        <div class="formula-grid">
+          <div class="formula-card">
+            <div class="formula">ECL = PD × LGD × EAD</div>
+            <div class="legend">
+              <div><b>PD</b> · Probability of Default dari Logistic Regression.</div>
+              <div><b>LGD</b> · 40% jika ada agunan, 75% jika tanpa agunan.</div>
+              <div><b>EAD</b> · Exposure at Default, menggunakan plafon kredit sebagai proxy.</div>
+              <div><b>Review flag</b> · aktif ketika PD melewati threshold 0.415.</div>
+            </div>
+          </div>
+
+          <div class="calculator">
+            <h3>Kalkulator ECL cepat</h3>
+            <div class="form-grid">
+              <label>Probability of Default (0–100%)
+                <input id="pdInput" type="number" min="0" max="100" step="0.1" value="12.5" />
+              </label>
+              <label>Plafon kredit / EAD (Rp)
+                <input id="eadInput" type="number" min="0" step="1000000" value="250000000" />
+              </label>
+              <label>Kepemilikan agunan
+                <select id="collateralInput">
+                  <option value="0.40">Ada agunan · LGD 40%</option>
+                  <option value="0.75">Tanpa agunan · LGD 75%</option>
+                </select>
+              </label>
+              <label>Threshold review
+                <input type="text" value="0.415" disabled />
+              </label>
+            </div>
+            <div class="calc-result" aria-live="polite">
+              <div class="result-item"><span>PD</span><strong id="pdResult">12.50%</strong></div>
+              <div class="result-item"><span>LGD</span><strong id="lgdResult">40%</strong></div>
+              <div class="result-item"><span>Estimated ECL</span><strong id="eclResult">Rp12.500.000</strong></div>
+            </div>
+            <div class="notice">Kalkulator ini menerima PD yang sudah tersedia. Inferensi PD dari delapan predictor numerik dilakukan pada aplikasi Streamlit.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="deploy">
+      <div class="wrap">
+        <div class="deploy">
+          <div>
+            <h2>Deploy repository</h2>
+            <p>GitHub Pages akan membaca <code>index.html</code>. Dashboard analitik utamanya tetap dideploy melalui Streamlit Community Cloud dengan main file <code>app.py</code>.</p>
+          </div>
+          <a class="btn btn-primary" href="README.md">Baca README</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">Proksima Credit Risk &amp; ECL Dashboard · Untuk analitik dan review, bukan keputusan kredit otomatis.</div>
+  </footer>
+
+  <script>
+    (() => {
+      const STREAMLIT_URL = ""; // Setelah deploy, isi URL Streamlit di sini, contoh: https://nama-app.streamlit.app
+      const streamlitButton = document.getElementById("streamlitButton");
+      if (STREAMLIT_URL) {
+        streamlitButton.href = STREAMLIT_URL;
+        streamlitButton.target = "_blank";
+        streamlitButton.rel = "noopener noreferrer";
+      }
+
+      const pdInput = document.getElementById("pdInput");
+      const eadInput = document.getElementById("eadInput");
+      const collateralInput = document.getElementById("collateralInput");
+      const pdResult = document.getElementById("pdResult");
+      const lgdResult = document.getElementById("lgdResult");
+      const eclResult = document.getElementById("eclResult");
+      const rupiah = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });
+
+      function calculateEcl() {
+        const pdPct = Math.min(100, Math.max(0, Number(pdInput.value) || 0));
+        const ead = Math.max(0, Number(eadInput.value) || 0);
+        const lgd = Number(collateralInput.value) || 0;
+        const ecl = (pdPct / 100) * lgd * ead;
+        pdResult.textContent = `${pdPct.toFixed(2)}%`;
+        lgdResult.textContent = `${(lgd * 100).toFixed(0)}%`;
+        eclResult.textContent = rupiah.format(ecl);
+      }
+
+      [pdInput, eadInput, collateralInput].forEach((element) => element.addEventListener("input", calculateEcl));
+      calculateEcl();
+    })();
+  </script>
+</body>
+</html>
